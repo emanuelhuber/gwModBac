@@ -29,4 +29,33 @@ Recommanded minimal grid size:
 * ny >= 15
 * nz >= 2
 
+## What does "run.R" Do?
+1. Read the hyperparameters/parameters from `para.R`
+2. Read the data (river stage time-series, groundwater head time-series) from `data/`
+3. Create the simulation grid (according to parameters)
+4. Define 
+   * the river properties (location, stage, riverbed), 
+   * the location of the specified head boundary, 
+   * the particles to estimate the microbila concentration in the drinking water extraction well.
+5. Run Monte Carlo simulations (unconditional)
+	i. simulate the hydraulic properties: hydraulic conductivity (Gaussian random field), porosity, etc.
+	ii. simulate the specified head boundary conditions (Gaussian process)
+		
+    for the 10-days ahead forecast:
+		
+    a. simulate the precipitation for the next 10 days
+    b. using a convolution model between precipitation and river stage, 
+			simulate the river stage for the next 10 days
+		c. using a convolution model between river stage and groundwater
+			heads at the observation wells, simulate the groundwater heads 
+			at the observation wells for the next 10 days
+		d. Simulate the head boundary conditions conditional on the
+			groundwater heads the observation wells
+		e. Interpolate from the head boundary conditions the initial
+			heads
+	iii. run MODFLOW
+	iv. run MODPATH to simulate pathway of the microbes that reach the well drinking water extraction well
+  v. Simulate the microbial concentration in the river from the river stage
+  vi. Predict the microbial concentration in the well according to an exponential decay model that simulates the mechanical filtration of microbes in the aquifer
+
 
