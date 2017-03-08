@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Rbuildignore
+*.Rproj
+*~
+.*
+.rkward_autosave
+test*.txt
+output*.txt
+*simulations
+!.gitignore
+
