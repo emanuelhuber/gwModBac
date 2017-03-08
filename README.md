@@ -43,18 +43,20 @@ Recommanded minimal grid size:
     2. simulate the specified head boundary conditions (Gaussian process)
         for the 10-days ahead forecast:
 		
-        a. simulate the precipitation for the next 10 days
-        b. using a convolution model between precipitation and river stage, simulate the river stage for the next 10 days
-        c. using a convolution model between river stage and groundwater
+        1. simulate the precipitation for the next 10 days
+        2. using a convolution model between precipitation and river stage, simulate the river stage for the next 10 days
+        3. using a convolution model between river stage and groundwater
 			heads at the observation wells, simulate the groundwater heads 
 			at the observation wells for the next 10 days
-        d. Simulate the head boundary conditions conditional on the
+        4. Simulate the head boundary conditions conditional on the
 			groundwater heads the observation wells
-        e. Interpolate from the head boundary conditions the initial
-			heads
+        5. Interpolate from the head boundary conditions the initial heads
     3. run MODFLOW
     4. run MODPATH to simulate pathway of the microbes that reach the well drinking water extraction well
     5. Simulate the microbial concentration in the river from the river stage
     6. Predict the microbial concentration in the well according to an exponential decay model that simulates the mechanical filtration of microbes in the aquifer
+
+### Model overview
+![Model overview](model_overview.png "Model overview")
 
 
