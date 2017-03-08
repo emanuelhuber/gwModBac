@@ -38,11 +38,9 @@ Recommanded minimal grid size:
    * the location of the specified head boundary, 
    * the particles to estimate the microbila concentration in the drinking water extraction well.
 5. Run Monte Carlo simulations (unconditional)
-	
     1. simulate the hydraulic properties: hydraulic conductivity (Gaussian random field), porosity, etc.
     2. simulate the specified head boundary conditions (Gaussian process)
         for the 10-days ahead forecast:
-		
         1. simulate the precipitation for the next 10 days
         2. using a convolution model between precipitation and river stage, simulate the river stage for the next 10 days
         3. using a convolution model between river stage and groundwater
