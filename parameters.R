@@ -7,6 +7,10 @@ cst_mps2mpd <- 3600*24
 timeFormat <- "%Y%m%d"
 nstp_pred <- 10              # day-ahead prediction
 nstp <- 21 + nstp_pred       # number of time steps
+stp_output <- 10             # which prediction step(s) to write in the
+                             # output file
+                             # to write all steps, use 
+                             # stp_output <- 1:nstp_pred
 timeSel <- seq(139, by=1, length=nstp)
 modGrid <- list(L  = c(min = 0, max = 150),   # 0 m to 200 m along x axis
                 W  = c(min = 0, max = 50),
@@ -24,10 +28,6 @@ river <- list(perimeter = cbind(c(modGrid$W["min"], 4,   4,   modGrid$W["min"]),
               depth     = 0.5,
               bedT      = 0.25)  # river bed thickness
 river$stepS <- (river$stepH - river$slope*river$stepL)/river$stepL
-# piezometers > hydraulic head observations
-piez <- list(x = cbind(c(17,   44.8,  9.1, 30.5, 13.4, 22.9, 36.2),
-                       c(19.8, 12.5, 35.6, 44.5, 58.6, 72.5, 68) + 15,
-                       c(14.9, 15.2, 14.7, 14.4, 14.6, 15.4, 16.0)))
 nrivObs <- 10
 nbc <- 10
 #--- convolution parameters (unit hydrograph)
@@ -59,7 +59,7 @@ prior <- list(h_sig   = list(type = "unif", min = 0.05, max = 0.1),
               h_lt    = list(type = "unif", min = 0.25, max = 1.5),
               h_ht    = list(type = "unif",  min = 0.01, max = 0.2),
               h_scale = list(type = "unif", min = 2, max = 10),
-              Cr      = list(type = "unif", mean = -2, sd = 0.75),
+              Cr      = list(type = "norm", mean = -2, sd = 0.75),
               ss      = list(type = "unif", min = 1*10^-6, max = 10*10^-5),
               sy      = list(type = "unif", min = 0.2, max = 0.35),
               p       = list(type = "unif", min = 0.25, max = 0.35),

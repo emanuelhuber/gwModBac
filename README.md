@@ -2,7 +2,7 @@
 
 Groundwater flow simulation and particle tracking to forecast microbial concentration in a drinking water extraction well.
 
-## Installation
+## Installation/Run
 
 ### Requirement
 - need to have "gdal_polygonize.py" installed (--> `install python-gdal`)

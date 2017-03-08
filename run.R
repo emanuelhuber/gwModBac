@@ -425,8 +425,9 @@ while(it < numOfSim){
   
   unlink(dirRun, recursive=TRUE, force=TRUE)
 }
-write.table(format(round(Cw, 6), 6), file = foutput, append = FALSE, 
-            quote = FALSE, sep = "\t", col.names = FALSE, 
+
+write.table(format(round(Cw[, stp_output], 6), 6), file = foutput, 
+            append = FALSE, quote = FALSE, sep = "\t", col.names = FALSE, 
             row.names = FALSE)
 
 #   plot(gwMod[["river"]])
