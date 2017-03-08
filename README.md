@@ -39,8 +39,8 @@ Recommanded minimal grid size:
    * the particles to estimate the microbila concentration in the drinking water extraction well.
 5. Run Monte Carlo simulations (unconditional)
 	
-    i. simulate the hydraulic properties: hydraulic conductivity (Gaussian random field), porosity, etc.
-    ii. simulate the specified head boundary conditions (Gaussian process)
+    1. simulate the hydraulic properties: hydraulic conductivity (Gaussian random field), porosity, etc.
+    2. simulate the specified head boundary conditions (Gaussian process)
         for the 10-days ahead forecast:
 		
         a. simulate the precipitation for the next 10 days
@@ -52,9 +52,9 @@ Recommanded minimal grid size:
 			groundwater heads the observation wells
         e. Interpolate from the head boundary conditions the initial
 			heads
-    iii. run MODFLOW
-    iv. run MODPATH to simulate pathway of the microbes that reach the well drinking water extraction well
-    v. Simulate the microbial concentration in the river from the river stage
-    vi. Predict the microbial concentration in the well according to an exponential decay model that simulates the mechanical filtration of microbes in the aquifer
+    3. run MODFLOW
+    4. run MODPATH to simulate pathway of the microbes that reach the well drinking water extraction well
+    5. Simulate the microbial concentration in the river from the river stage
+    6. Predict the microbial concentration in the well according to an exponential decay model that simulates the mechanical filtration of microbes in the aquifer
 
 
