@@ -21,7 +21,7 @@ Two possiblities:
     * `50` --> ny: number of cells along the y-direction = number of rows
     * `2` --> nz: number of cells along the z-direction = number of layers
     * `1` --> number of runs (but one output file with all the output together)
-    * `OK` [optional] --> can be anything; if the 6th argument is present, an overview plot is created for each single simulation (in the directory `simulations`). If absent, no plot will be created (faster).
+    * `OK` [optional] --> can be anything; if the 6th argument is present, an overview plot is created for each single simulation (in the directory `simulations`): same plot as in section [Groundwater flow simulation and particle tracking](#groundwater-flow-simulation-and-particle-tracking). If absent, no plot will be created (faster).
     
 ### Notes
 Minimal possible grid size:
