@@ -468,15 +468,27 @@ gpHKgwMod <- function(gwMod, K_hani, K_hstr, K_vstr, K_nu, K_sd,
                                   Aniso = aniso) +
                                   RandomFields::RMnugget(var = K_nug^2)
   #RFoptions(seed=18051984)
+  ya <- yaxis(gwMod)
+  vx <- seq(from= ya[1], by = round(mean(diff(ya)),10), 
+            length.out = length(ya))
+  xa <- xaxis(gwMod)
+  vy <- seq(from= xa[1], by = round(mean(diff(xa)),10), 
+            length.out = length(xa))
   if(nlay(gwMod) == 1L){
-    simu <- RandomFields::RFsimulate(model, x = yaxis(gwMod), 
-                                            y = xaxis(gwMod))
+    aniso <- RandomFields::RMangle(angle     = K_hani * pi/180,
+                                  diag      = c(1, K_hstr))
+    model <- RandomFields::RMmatern(nu    = K_nu, 
+                                    var   = K_sd^2, 
+                                    scale = K_l/2, 
+                                    Aniso = aniso) +
+                                    RandomFields::RMnugget(var = K_nug^2)
+    simu <- RandomFields::RFsimulate(model, x = vx, y = vy)
   }else{
     zval <- zaxis(gwMod)
     zval[1] <- zval[2] - mean(diff(zval[-1]))
-    simu <- RandomFields::RFsimulate(model, x = yaxis(gwMod), 
-                                            y = xaxis(gwMod), 
-                                            z = zval)
+    vz <- seq(from= zval[1], by = round(mean(diff(zval)),10), 
+            length.out = length(zval))
+    simu <- RandomFields::RFsimulate(model, x = vx, y = vy, z = vz)
   }
   K0 <- array(as.vector(simu@data)[,1], 
               dim = c(nrow(gwMod), ncol(gwMod), nlay(gwMod)))

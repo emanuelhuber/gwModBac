@@ -12,7 +12,7 @@ foutput <- "output.txt"
 # arg5 -> number of simulation
 numOfSim <-  1                    # number of simulations
 
-DIR <- "/media/data/huber/Documents/WORK_NEWNEW/multiLevelMCMC"
+DIR <- "/media/data/huber/Documents/WORK/multilevelMCMC"
 
 if(length(args) >= 1){
   foutput <- as.character(args[1])
@@ -33,6 +33,10 @@ if(length(args) >= 4){
 if(length(args) >= 5){
   numOfSim <- abs(as.integer(args[5]))
 }
+if(length(args) >= 6){
+  onePlot <- TRUE
+}
+
 
 #--- check if DIR exisits
 if(!dir.exists(DIR)){
@@ -47,7 +51,7 @@ getwd()
 
 ##------ load/install packages
 pckgs <- c("zoo", "compiler", "signal", "RandomFields", "akima", "rgdal",
-           "raster", "rgeos", "devtools")
+           "raster", "rgeos", "devtools", "Cairo")
 inst_pckgs <- pckgs[ !(pckgs %in% installed.packages()[,"Package"]) ]
 if(length(inst_pckgs) > 0) install.packages(inst_pckgs)
 
@@ -62,7 +66,7 @@ pkgs_loaded <- lapply(c(pckgs, githubPckgs), require, character.only = TRUE)
 
 
 
-enableJIT(3)
+invisible(enableJIT(3))
 
 source("fx/RMODFLOW.R")
 source("fx/utilityFunctions.R")
@@ -89,18 +93,20 @@ if(exists("nz")){
 }
 
 #--- CHECKS
-if(modGrid$nx < 2){
+if(modGrid$nx < 10){
   cat("", file = foutput, append = FALSE)
-  stop("nx (arg #2) must be larger than 1!\n")
+  stop("nx (arg #2) must be larger than 10!\n")
 }
-if(modGrid$ny < 13){
+if(modGrid$ny < 10){
   cat("", file = foutput, append = FALSE)
-  stop("ny (arg #3) must be larger than 12!\n")
+  stop("ny (arg #3) must be larger than 10!\n")
 }
 if(modGrid$nz < 2){
   cat("", file = foutput, append = FALSE)
   stop("nz (arg #4) must be larger than 1!\n")
 }
+  
+  
 
 ##-------------------------------- READ DATA ------------------------------##
 timeID <- as.character(read.table("data/timeID.txt", sep = ",", header = FALSE,
@@ -141,6 +147,8 @@ gwMod <- modGrid3D(modGrid, prec = 2, fun = valleyFloor, a = -river$slope,
 gwMod[[1]] <- gwMod[[1]] + 0.4
 #plot(gwMod[[3]])
 
+
+
 ##--- river raster
 rivPoly <- SpatialPolygons(list(Polygons(list(Polygon(river$perimeter)), 
                            "p1")), 1L)
@@ -162,11 +170,11 @@ rm(rCHD)
 
 ##------------------------------ BOUNDARY CONDITIONS -------------------------##
 ##--- drinking water extraction Well
-wellFrame <- setWells(gwMod, wellExt, timeID)
+wellFrame <- setWells(gwMod, val = wellExt, timeID)
 wellFrame[,timeID[1:7]] <- 0  # well off the first 7 days
 
 ##--- River
-cellsRiv <- cellsFromExtent(gwMod[["river"]],trim(gwMod[["river"]])) 
+cellsRiv <- cellsFromExtent(gwMod[["river"]], trim(gwMod[["river"]])) 
 #--- river bed elevation
 xyRiv <- xyFromCell(gwMod[["river"]], cellsRiv)
 rivBedAppz <- b + (-river$stepS) * xyRiv[,"y"] +  0.4 - 0.1
@@ -238,12 +246,12 @@ it <- 0                            # start at iteration it
 
 while(it < numOfSim){
   it <- it + 1
-  cat("*********************************\n")
   cat("***** SIMULATION N0", it, "******\n")
+  cat(format(Sys.time(), "   %Y/%m/%d %H:%M:%S \n"))
   
   idRea <- paste0("rea_", sprintf("%04d", it))
   dirRun <- file.path(dirProj, idRea)
-  dir.create(path = dirRun)
+  suppressWarnings(dir.create(path = dirRun))
   
   ##------------------- HYDRAULIC PROPERTIES SIMULATION -----------------------#
   ##---- hyd. properties
@@ -271,8 +279,10 @@ while(it < numOfSim){
   K_nug  <- runif(1, prior$K_nug$min, prior$K_nug$max)
   ##--- simulation
   #--- hydraulic conductivity
-  gwMod <- gpHKgwMod(gwMod, K_hani, K_hstr, K_vstr, K_nu, K_sd,
-                      K_l, K_nug, K_mean, cst_mps2mpd )
+  gwMod <- suppressMessages(suppressWarnings(gpHKgwMod(gwMod, K_hani, K_hstr, 
+                                                       K_vstr, K_nu, K_sd,
+                                                       K_l, K_nug, K_mean, 
+                                                       cst_mps2mpd )))
   #--- porosity
   gwMod <- porosity(gwMod, poros)    # porosity
   #--- Zonation for "ss" and "sy"
@@ -313,18 +323,19 @@ while(it < numOfSim){
                          l      = runif(1, prior$h_lt$min, prior$h_lt$max),
                          h      = runif(1, prior$h_ht$min, prior$h_ht$max))
     covModels <- list(pos = covModel, time = covModelTime)
-    GPCHD <- gpCond(obs = hobs, targ = list("x" = xyCHD), 
-                    covModels = covModels,
-                    sigma = h_sig, op = 2, bc = bc )
+    GPCHD <- suppressWarnings(gpCond(obs = hobs, targ = list("x" = xyCHD), 
+                              covModels = covModels,
+                              sigma = h_sig, op = 2, bc = bc ))
     L <- cholfac(GPCHD$cov)
-    hCHD <- gpSim(GPCHD , L = L)
+    hCHD <- suppressWarnings(gpSim(GPCHD , L = L))
     colnames(hCHD) <- c("x","y","t","value")
     valCHD <- matrix(hCHD[,"value"], nrow=nrow(rowColCHD), ncol=nstp, 
                     byrow=TRUE)
     testCHD <- sum(valCHD >= ZCHD) + 
                   sum(valCHD <= ZCHDbot)
+    cat("   ")
     if(testCHD > 0){
-      cat("  +  ")
+      cat("+ ")
       next
     }else{
       #---STARTING HEADS
@@ -347,6 +358,7 @@ while(it < numOfSim){
   
   ##--------------------------- MODFLOW SIMULATION ---------------------------##
   idMF <- "simBC"     # ID MODFLOW model 
+  wetting <- c("wetfct" = 0.1 , "iwetit" = 5  , "ihdwet" = 0, "wetdry"= 0.8)
   arguments <- list(rs.model = gwMod, 
                        well = wellFrame, 
                        river = riverFrame,
@@ -355,10 +367,11 @@ while(it < numOfSim){
                      dir.run = dirRun, 
                    ss.perlen = 5L, 
            tr.stress.periods = as.Date(timeID[-1], timeFormat),
+                     wetting = wetting,
               is.convertible = TRUE,
                          uni = uni,
                   timeFormat = timeFormat)
-  do.call(WriteModflowInputFiles, arguments)
+  suppressMessages(do.call(WriteModflowInputFiles, arguments))
   cat("Run MODFLOW...")
   A <- runModflowUsg(dirpath = dirRun, id = idMF, exe = "mfusg")
   
@@ -376,10 +389,11 @@ while(it < numOfSim){
 
   ##.............. MODPATH SIMULATION - BACTERIA INFILTRATION ................##
   idMP2 <- "bacteria"
-  writeModpathInputFiles( id             = idMP2,
+  suppressMessages(writeModpathInputFiles( id             = idMP2,
                          dir.run         = dirRun,
                          optionFlags     = c("StopOption"          = 2, 
-                                             "WeakSinkOption"      = 1, 
+                                             "WeakSinkOption"      = 1,
+                                             "WeakSourceOption"    = 2,
                                              "TrackingDirection"   = 2,
                                              "ReferenceTimeOption" = 1), 
                          budgetFaceLabel = NULL, 
@@ -389,8 +403,8 @@ while(it < numOfSim){
                          particles       = partFor,
                          ReferenceTime   = nstp,
                          unconfined      = TRUE,
-                         verbose         = TRUE)
-  cat("Run MODPATH...")
+                         verbose         = FALSE))
+  cat("   Run MODPATH...")
   B <- runModpath(dirpath = dirRun, id = idMP2, exe = "mp6", 
                   batFile = "runModpath.bat")
   
@@ -400,13 +414,16 @@ while(it < numOfSim){
     unlink(dirRun, recursive=TRUE, force=TRUE)
     next
   }
-  ext <- extent3D(gwMod)
-  PartForE <- readParticles(idMP2, dirRun, ext = ext, type="end")
-  PartForP <- readParticles(idMP2, dirRun, ext = ext, type="path")
+#   ext <- extent3D(gwMod)
+#   Pend <- readParticles(idMP2, dirRun, r = gwMOD, type="end")
+#   Ppath <- readParticles(idMP2, dirRun, r = gwMOD, type="path")
+  
+  Pend <- readParticles(idMP2, dirRun, type="end")
+  Ppath <- readParticles(idMP2, dirRun,  type="path")
  
-  if(all(PartForE[,"iLay"] == PartForE[,"fLay"] &&
-         PartForE[,"iRow"] == PartForE[,"fRow"] &&
-         PartForE[,"iCol"] == PartForE[,"fCol"])){
+  if(all(Pend[,"iLay"] == Pend[,"fLay"] &&
+         Pend[,"iRow"] == Pend[,"fRow"] &&
+         Pend[,"iCol"] == Pend[,"fCol"])){
     cat("MODPATH (2) > particles did not move!!\n")
     it <- it-1
     unlink(dirRun, recursive=TRUE, force=TRUE)
@@ -416,29 +433,61 @@ while(it < numOfSim){
   ##..........................................................................##
 
   ##.............. SIMULATION MICROBES CONCENTRATION IN WELL .................##
-  Cw[it, ] <- microbesSim(r = gwMod[["river"]], Pend = PartForE,
-                          Ppath = PartForP, rivh = hfor$riv, 
+  Cw[it, ] <- microbesSim(r = gwMod[["river"]], Pend = Pend,
+                          Ppath = Ppath, rivh = hfor$riv, 
                           a = bactConcPara$a, b = bactConcPara$b, d = 100, 
                           span = 0.4, lambda = bactConcPara$lambda)
   ##..........................................................................##
   
+  if(isTRUE(onePlot)){
+    fHeads <- file.path(dirRun , paste0(idMF , ".hds"))
+    rHeads <- get.heads(fHeads, kper = 1:nstp, kstp = 1, r = gwMod[[1]])
+    hi <- paste0("lay1.head.1.", length(timeID))
+    
+    nt <- length(hfor$riv)
+    timeC <- unique(nt + 1 - Pend[,"iTime"])
+    # 1. identify particles coming from the river
+    test <- extract(gwMod[["river"]], Pend[,c("x","y")], method = "bilinear")
+    vtest <- (!is.na(test) & !is.na(Pend[,c("z")]))
   
+    ids <- unique(Ppath[,"id"])
+    if(length(ids) > 500){
+      ids <- ids[sample.int(n = length(ids), size = 500)]
+    }
+    polyRiv <- rasterToPolygons(gwMod[["river"]], dissolve=TRUE)
+    png(filename = paste0(dirRun, ".png"), 
+            width = 480, height = 860, pointsize = 12)
+      plot(rHeads[[hi]])
+      contour(rHeads[[hi]], levels=seq(0,30,by=0.05), add=TRUE)
+      sp::plot(polyRiv, col = rgb(145/255, 238/255, 1, 150/255), add = TRUE)
+      plotPathXY(Ppath, id = ids)
+      points(Pend[vtest,c("x","y")] ,pch=20,col="black", cex = 1.5) 
+      points(Pend[vtest,c("x","y")] ,pch=20,col="green", cex = 0.5) 
+      points(Pend[!vtest,c("x","y")] ,pch=20,col="red", cex = 1)
+    points(wellExt["x"],wellExt["y"], pch=22, bg="blue",cex=1)
+      title(tail(timeID, 1))
+    dev.off()
+  
+  }
+  cat("   Concentration = ", format(Cw[it, length(timeForc)], 12, scientific = TRUE) , "\n")
   unlink(dirRun, recursive=TRUE, force=TRUE)
 }
 
-write.table(format(round(Cw[, stp_output], 6), 6), file = foutput, 
-            append = FALSE, quote = FALSE, sep = "\t", col.names = FALSE, 
-            row.names = FALSE)
+
+
+write.table(format(Cw[, length(timeForc)], 12, scientific = TRUE), 
+            file = foutput, append = FALSE, quote = FALSE, sep = "\t", 
+            col.names = FALSE, row.names = FALSE)
 
 #   plot(gwMod[["river"]])
-#   plotPathXY(PartForP[PartForP[,"id"] %in% 
-#                       PartForE[which(!is.na(test2)),"id"],])
+#   plotPathXY(Ppath[Ppath[,"id"] %in% 
+#                       Pend[which(!is.na(test2)),"id"],])
 #   plot(gwMod[["river"]])
-#   plotPathXY(PartForP[PartForP[,"id"] %in% 
-#                       PartForE[which(!is.na(test)),"id"],])
+#   plotPathXY(Ppath[Ppath[,"id"] %in% 
+#                       Pend[which(!is.na(test)),"id"],])
 #   
 #   
-#   plotPathXY(PartForP[which(!is.na(test2)),])
+#   plotPathXY(Ppath[which(!is.na(test2)),])
 # 
 # 
 #  
@@ -451,9 +500,9 @@ write.table(format(round(Cw[, stp_output], 6), 6), file = foutput,
 #     hi <- paste0("lay2.head.1.", length(timeID))
 #     plot(rHeads[[hi]])
 #     contour(rHeads[[hi]], levels=seq(0,30,by=0.05), add=TRUE)
-#     points(PartForE[,c("x","y")],pch=20,col="blue")  # end (final)
-#     plotPathXY(PartForP)
-#     plotPathXY(PartForP)
+#     points(Pend[,c("x","y")],pch=20,col="blue")  # end (final)
+#     plotPathXY(Ppath)
+#     plotPathXY(Ppath)
 #     points(wellExt["x"],wellExt["y"], pch=22, bg="green",cex=1)
 #     title(tail(timeID, 1))
 #   dev.off()

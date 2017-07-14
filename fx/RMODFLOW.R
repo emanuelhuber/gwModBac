@@ -971,17 +971,17 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   nam <- data.frame(ftype="LIST", nunit=nunit, fname=basename(f))
   
   #---------------------------------#
-  cat("*** Writing MODFLOW Files ***\n")
-  cat(length(nstp), "time steps\n")
-  cat("units:", uni[1], "and", uni[2], "\n")
-  cat("model dimension:", dim(rs.model[[1]])[1], "x", 
-      dim(rs.model[[1]])[2], "x", nl, "\n")
-  cat("header=", substr(header, 2, nchar(header)) , "\n")
+  message("*** Writing MODFLOW Files ***")
+  message(length(nstp), "time steps")
+  message("units:", uni[1], "and", uni[2])
+  message("model dimension:", dim(rs.model[[1]])[1], "x", 
+      dim(rs.model[[1]])[2], "x", nl)
+  message("header=", substr(header, 2, nchar(header)))
   #---------------------------------#
   
   #==========================
   # Basic file (BAS6)
-  cat("Writting BAS6 file...\n")
+  message("Writting BAS6 file...")
   f <- file.path(dir.run, paste0(id, ".ba6"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="BAS6", nunit=nunit, fname=basename(f)))
@@ -1017,7 +1017,7 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
 
   #==========================
   # Discretization file (DIS)
-  cat("Writting DIS file...\n")
+  message("Writting DIS file...")
   f <- file.path(dir.run, paste0(id, ".dis"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="DIS", nunit=nunit, fname=basename(f)))
@@ -1038,10 +1038,10 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   ds02 <- paste0(paste(layConf, collapse=" "), " # LAYCBD(NLAY)")
   cat(ds02, file=f, sep="\n", append=TRUE)
 
-  ds03 <- paste("CONSTANT", res(rs.model)[2], " # DELR")
+  ds03 <- paste("CONSTANT", res(rs.model)[1], " # DELR")
   cat(ds03, file=f, sep="\n", append=TRUE)
 
-  ds04 <- paste("CONSTANT", res(rs.model)[1], " # DELC")
+  ds04 <- paste("CONSTANT", res(rs.model)[2], " # DELC")
   cat(ds04, file=f, sep="\n", append=TRUE)
 
   ds05 <- paste("INTERNAL 1 (FREE)", iprn, " # TOP layer 1")
@@ -1068,7 +1068,7 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
               
   #===============================
   # Layer-Property Flow file (LPF)
-  cat("Writting LPF file...\n")
+  message("Writting LPF file...")
   f <- file.path(dir.run, paste0(id, ".lpf"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="LPF", nunit=nunit, fname=basename(f)))
@@ -1223,7 +1223,7 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   #=================
   # Drain file (DRN)
   if(!is.null(drain)){  
-  cat("Writting drain file...\n")
+  message("Writting drain file...")
   f <- file.path(dir.run, paste0(id, ".drn"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="DRN", nunit=nunit, fname=basename(f)))
@@ -1252,7 +1252,7 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   #==================
   # River file (RIV)
   if(!is.null(river)){
-  cat("Writting river file...\n")
+  message("Writting river file...")
   f <- file.path(dir.run, paste0(id, ".riv"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="RIV", nunit=nunit, fname=basename(f)))
@@ -1278,7 +1278,7 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   #==========================================
   # Time-variant specified-head package (CHD)
   if(!is.null(chd)){
-  cat("Writting specified-head file (CHD)...\n")
+  message("Writting specified-head file (CHD)...")
   f <- file.path(dir.run, paste0(id, ".chd"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="CHD", nunit=nunit, fname=basename(f)))
@@ -1306,7 +1306,7 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   #================
   # Well file (WEL)
   if(!is.null(well)){
-  cat("Writting well file...\n")
+  message("Writting well file...")
   f <- file.path(dir.run, paste0(id, ".wel"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="WEL", nunit=nunit, fname=basename(f)))
@@ -1344,12 +1344,12 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   
   # RECHARGE file (WEL)
   if(!is.null(rech)){
-  cat("NOT writting rech file...\n")
+  message("NOT writting rech file...")
   warnings("package recharge is not yet implemented")
   }
   
   # Sparse Matrix Solver file (SMS)
-cat("Writting sparse matrix solver file...\n")
+  message("Writting sparse matrix solver file...")
   f <- file.path(dir.run, paste0(id, ".sms"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="SMS", nunit=nunit, fname=basename(f)))
@@ -1374,7 +1374,7 @@ cat("Writting sparse matrix solver file...\n")
   }
 
   # Output control (OC)
-cat("Writting OC file...\n")
+  message("Writting OC file...")
   f <- file.path(dir.run, paste0(id, ".oc"))
   nunit <- nunit + 1L
   nam <- rbind(nam, data.frame(ftype="OC", nunit=nunit, fname=basename(f)))
@@ -1393,7 +1393,7 @@ cat("Writting OC file...\n")
   }
 
   # Name file
-cat("Writting name file...\n")
+  message("Writting name file...")
   nam <- rbind(nam, data.frame(ftype="DATA(BINARY)", nunit=nunit.bud,
                                fname=paste0(id, ".bud")))
   nam <- rbind(nam, data.frame(ftype="DATA(BINARY)", nunit=nunit.hds,
@@ -1419,8 +1419,8 @@ cat("Writting name file...\n")
 
 setOptionsFlag <- function(ref, new){
   if(!is.null(new)){
-  new[names(new) %in% names(ref)]
-  ref[names(new)] <- as.integer(new)
+    new[names(new) %in% names(ref)]
+    ref[names(new)] <- as.integer(new)
   }
   return(ref)
 }
@@ -1467,7 +1467,7 @@ writeModpathInputFiles <- function(id=id, dir.run=NULL, optionFlags=NULL,
            "DRAINS (DRT)" = 6,
            "ET SEGMENTS" = 6,
            "ET" = 6,
-           "HEAD DEP BOUNDS" = 5,
+           "HEAD DEP BOUNDS" = 6,
            "RECHARGE" = 6,
            "RIVER LEAKAGE" = 6,
            "WELLS" = 0)
@@ -1500,7 +1500,7 @@ writeModpathInputFiles <- function(id=id, dir.run=NULL, optionFlags=NULL,
   dir.create(path=dir.run, showWarnings=FALSE, recursive=TRUE)
   header <- paste0("# Wood River Valley flow model (", Sys.time(), " ",
                    Sys.timezone(), ")")
-     cat("Writting MPSIM file...\n")
+     message("Writting MPSIM file...")
      
      ## MPSIM FILE
    f <- file.path(dir.run, paste0(id, ".mpsim"))
@@ -1592,11 +1592,12 @@ writeModpathInputFiles <- function(id=id, dir.run=NULL, optionFlags=NULL,
         cat(nrow(particles[[i]]), file=fpart, sep="\n", append=TRUE)
     }
     A0 <- do.call(rbind,particles)
-    A <- data.frame("ID"= 1:nrow(A0),"Group"=rep(1:length(particles),
-                                                 sapply(particles,nrow)),
-            "Grid"=1L, A0)
-    write.table(A, file= fpart, append=TRUE,
-          quote=FALSE, row.names=FALSE, col.names=FALSE)
+    A <- data.frame("ID"    = 1:nrow(A0),
+                    "Group" = rep(1:length(particles), sapply(particles,nrow)),
+                    "Grid"  = 1L, 
+                    A0)
+    write.table(A, file= fpart, append = TRUE, quote = FALSE,
+                row.names = FALSE, col.names = FALSE)
     
   
     
@@ -1656,9 +1657,8 @@ writeModpathInputFiles <- function(id=id, dir.run=NULL, optionFlags=NULL,
    
    for(i in seq_along(budgetFaceLabel)){
     cat(names(budgetFaceLabel)[i], file=f, sep="\n", append=TRUE)
-    cat(paste(budgetFaceLabel[i], "DefaultIFACE"), file=f, sep="\n", 
-        append=TRUE)
-    
+    cat(paste("   ", budgetFaceLabel[i], "DefaultIFACE"), 
+        file = f, sep = "\n", append = TRUE)
    }
    
    if(unconfined){
@@ -1758,16 +1758,16 @@ readParticles <- function(id, dirRun, ext = NULL,
   A <- read.table(fpath, skip = nL, header = FALSE, sep = sep)
   names(A) <- fHead
   if(!is.null(ext)){
-  if(type == "path" || type == "end"){
-    A[,"x"] <- A[,"x"] + ext["xmin"]
-    A[,"y"] <- A[,"y"] + ext["ymin"]
-#     A[,"z"] <- A[,"z"] + ext["zmin"]
-  }
-  if(type == "end"){
-    A[,"x0"] <- A[,"x0"] + ext["xmin"]
-    A[,"y0"] <- A[,"y0"] + ext["ymin"]
-#     A[,"z0"] <- A[,"z0"] + ext["zmin"]
-  }
+    if(type == "path" || type == "end"){
+      A[,"x"] <- A[,"x"] + ext["xmin"]
+      A[,"y"] <- A[,"y"] + ext["ymin"]
+  #     A[,"z"] <- A[,"z"] + ext["zmin"]
+    }
+    if(type == "end"){
+      A[,"x0"] <- A[,"x0"] + ext["xmin"]
+      A[,"y0"] <- A[,"y0"] + ext["ymin"]
+  #     A[,"z0"] <- A[,"z0"] + ext["zmin"]
+    }
   }
   return(A)
 }
@@ -1776,39 +1776,49 @@ readParticles <- function(id, dirRun, ext = NULL,
 plotPathXY <- function(P, id = NULL, group = NULL, col = NULL,...){
   
   if(is.null(id) && is.null(group)){
-  allid <- unique(P[,"id"])
-  allgrp <- unique(P[,"group"])
-  if(is.null(col)){
-    myCol0 <- plot3D::jet2.col(length(allgrp))
-    myCol <- setCol(allid , collim = NULL, col = myCol0)
-  }else{
-    myCol <- col
-  }
-#   if(length(col) < length(allid)){
-#     col <- col[c(1:length(col),rep(1,length(allid)-length(col)))]
-#     cat(length(col))
-#   }
-  for(i in seq_along(allid)){
-    Pid <- P[P[,"id"] == allid[i],]
-#invisible(lines(Pid[,c("x")]+xmin(r), Pid[,c("y")]+ymin(r),col=col[i],...))
-    invisible(lines(Pid[,c("x")], Pid[,c("y")],col=myCol[i],...))
-  }
+    allid <- unique(P[,"id"])
+    allgrp <- unique(P[,"group"])
+    if(is.null(col)){
+      myCol0 <- plot3D::jet2.col(length(allgrp))
+      myCol <- setCol(allid , collim = NULL, col = myCol0)
+    }else{
+      myCol <- col
+    }
+  #   if(length(col) < length(allid)){
+  #     col <- col[c(1:length(col),rep(1,length(allid)-length(col)))]
+  #     cat(length(col))
+  #   }
+    for(i in seq_along(allid)){
+      Pid <- P[P[,"id"] == allid[i],]
+  #invisible(lines(Pid[,c("x")]+xmin(r), Pid[,c("y")]+ymin(r),col=col[i],...))
+      invisible(lines(Pid[,c("x")], Pid[,c("y")],col=myCol[i],...))
+    }
   
   }else if(!is.null(id)){
-  Pid <- P[P[,"id"] == id,]
-#   invisible(lines(Pid[,c("x")]+xmin(r), Pid[,c("y")]+ymin(r),...))
-  invisible(lines(Pid[,c("x")], Pid[,c("y")],col=col,...))
+    allgrp <- unique(P[P[,"id"] %in% id, "group"])
+    if(is.null(col)){
+      myCol0 <- plot3D::jet2.col(length(allgrp))
+      myCol <- setCol(id , collim = NULL, col = myCol0)
+    }else{
+      myCol <- col
+    }
+    for(i in seq_along(id)){
+      Pid <- P[P[,"id"] == id[i],]
+      invisible(lines(Pid[,c("x")], Pid[,c("y")],col=myCol[i],...))
+    }
   }else if(!is.null(group)){
-    Pgrp <- P[P[,"group"] == group,]
-    allid <- unique(Pgrp[,"id"])
-    for(i in seq_along(allid)){
-    pp <- Pgrp[Pgrp[,"id"] == allid[i],]
-    invisible(lines(pp[,c("x")], pp[,c("y")],col=col,...))
-  }
+      Pgrp <- P[P[,"group"] == group,]
+      allid <- unique(Pgrp[,"id"])
+      for(i in seq_along(allid)){
+        pp <- Pgrp[Pgrp[,"id"] == allid[i],]
+      invisible(lines(pp[,c("x")], pp[,c("y")],col=col,...))
+    }
   }
 }
 
 
+# nx <-> number of col
+# ny <-> number of row
 # grid <- list(L = 100,   # 0 m to 200 m along x axis
 #              W = 40,
 #              H = 10,
@@ -1817,12 +1827,12 @@ plotPathXY <- function(P, id = NULL, group = NULL, col = NULL,...){
 #              nz = 20)      # number of cells (z axis)
 # prec = 2 # precision for the rounding
 # return lay1.top, lay1.bot, ... lay<n>.bot (RasterStack)
-modGrid3D <- function(grid, prec=2, fun = NULL,...){
-  cat("model with", grid$nx, "(rows) x", grid$ny, "(cols) x",
-      grid$nz, "(lays) =", grid$nx * grid$ny * grid$nz, "cells.\n")
-  r <- raster(nrows = grid$nx,       ncols = grid$ny, 
-              xmn   = grid$W["min"], xmx   = grid$W["max"], 
-              ymn   = grid$L["min"], ymx   = grid$L["max"], vals = grid$H)
+modGrid3D <- function(grd, prec = 2, fun = NULL,...){
+  message("model with ", grd$ny, " (rows) x ", grd$nx, " (cols) x ",
+          grd$nz, " (lays) = ", grd$nx * grd$ny * grd$nz, " cells.")
+  r <- raster(nrows = grd$ny,       ncols = grd$nx, 
+              xmn   = grd$x["min"], xmx   = grd$x["max"], 
+              ymn   = grd$y["min"], ymx   = grd$y["max"], vals = grd$z)
   names(r) <- "lay1.top"
   if(!is.null(fun)){
     xy <- xyFromCell(r,cellsFromExtent(r, r, expand=FALSE))
@@ -1830,9 +1840,9 @@ modGrid3D <- function(grid, prec=2, fun = NULL,...){
   }
   gwMod <- stack() # initialize a raster stack for model input
   gwMod <- stackRaster(gwMod, r)
-  dz <- grid$H/grid$nz
+  dz <- grd$z/grd$nz
   # bottom layers
-  for(i in 1:grid$nz){
+  for(i in seq_len(grd$nz)){
     if(i==1){
       r <- gwMod[["lay1.top"]]
     }else{
@@ -2278,11 +2288,10 @@ setParticles <- function(gwMod, xyz, pnames = NULL, releaseTime=NULL){
   idcell <-cellFromXY(r,xyz[,1:2])
   ptclRowCol <- rowColFromCell(r,idcell)
   xyCell <- xyFromCell(r,idcell)
-  nptcl1 <- length(idcell)
-  px <- round((xyz[,1] %% res(r)[1])/res(r)[1],2)
-  py <- round((xyz[,2] %% res(r)[2])/res(r)[2],2)
-#   pz <- (xyz[,3] - (xyz[,3] - res(r)[3]/2))/res(r)[3]
-  
+  px <- round((xyz[,1] - (xyCell[,1] - res(r)[1]/2) )/res(r)[1],3)
+  #px <- round((xyz[,1] - xyCell[,1])/res(r)[1],3)
+  #py <- round((xyz[,2] - xyCell[,2])/res(r)[2],3)
+  py <- 1 - round((xyz[,2] - (xyCell[,2] - res(r)[2]/2))/res(r)[2],3)
 
   if(ncol(xyz) == 2){
     play <- 1
@@ -2297,16 +2306,13 @@ setParticles <- function(gwMod, xyz, pnames = NULL, releaseTime=NULL){
     play <- rep(NA, nxyz)
     pz <- rep(NA, nxyz)
     for(i in seq_len(nxyz)){
-#             val <- as.vector(extract(gwMod[[rnames]],idcell[i]))
       vali <- as.vector(val[i,])
-      layi <-      which(xyz[i,3] > vali[2:(nLay+1)] & 
+      layi <- which(xyz[i,3] > vali[2:(nLay+1)] & 
                                 xyz[i,3] < vali[1:nLay])
-            if(length(layi) == 0){
-            
-            }else{
-              play[i] <- layi
-              res_z <- vali[play[i]] - vali[play[i]+1]
-              pz[i] <- ((xyz[i,3] - vali[play[i]+1]) ) / res_z
+      if(length(layi) != 0){
+        play[i] <- layi
+        res_z <- vali[play[i]] - vali[play[i]+1]
+        pz[i] <- ((xyz[i,3] - vali[play[i]+1]) ) / res_z
       }
     }
   }
@@ -2321,7 +2327,6 @@ setParticles <- function(gwMod, xyz, pnames = NULL, releaseTime=NULL){
              "LocalZ"  = round(pz,2), 
              "ReleaseTime" = releaseTime,
              "Label" = pnames)
-  
   return(ptcls[!is.na(ptcls[,1]),])
 }
     
@@ -2400,32 +2405,32 @@ setWells <- function(gwMod, val, timeID){
   nl <- nlay(gwMod)
   wellLst <- vector(mode="list",length=length(val$x))
   rnames <- c("lay1.top",paste("lay",seq_len(nl),".bot",sep=""))
-  for(k in 1:length(val$x)){
-  idCells <- cellFromXY(gwMod,c(val$x[k], val$y[k]))
-  zl <- as.vector(raster::extract(gwMod[[rnames]],idCells))
-  zl <- round(zl,2)
-  aa <- sort(c(val$ztop[k], val$zbot[k]))
-  wl <- which(aa[2] >= zl & aa[1] <= zl)
-  if(length(wl)==0){
-    wl <- which(aa[2] <= zl & aa[1] <= zl)
-    AA <- cbind(tail(wl, 1), aa[2]-aa[1])
-  }else{
-    vv <- c(aa[2], zl[wl], aa[1])
-    # layer & proportion
-    AA <- cbind(c(wl[1]-1,wl),abs(diff(vv)))
-  }
-  AA <- AA[AA[,2]!=0,,drop=FALSE]
-  if(length(dim(val))==2){
-    stop("Not yet implemented for matrix")
-  }else{
-    qrate <- AA[,2] * val$q[k]/sum(AA[,2])
-  }
-  if(length(timeID) > 1){
-    qrate <- matrix(qrate,nrow=length(qrate),ncol=length(timeID))
-  }
-  wMat <- cbind(AA[,1],rowFromY(gwMod, val$y[k]), 
-                colFromX(gwMod, val$x[k]), val$id[k],qrate)
-  wellLst[[k]] <- wMat
+  for(k in seq_along(val$x)){
+    idCells <- cellFromXY(gwMod,c(val$x[k], val$y[k]))
+    zl <- as.vector(raster::extract(gwMod[[rnames]],idCells))
+    zl <- round(zl,2)
+    aa <- sort(c(val$ztop[k], val$zbot[k]))
+    wl <- which(aa[2] >= zl & aa[1] <= zl)
+    if(length(wl)==0){
+      wl <- which(aa[2] <= zl & aa[1] <= zl)
+      AA <- cbind(tail(wl, 1), aa[2]-aa[1])
+    }else{
+      vv <- c(aa[2], zl[wl], aa[1])
+      # layer & proportion
+      AA <- cbind(c(wl[1]-1,wl),abs(diff(vv)))
+    }
+    AA <- AA[AA[,2]!=0,,drop=FALSE]
+    if(length(dim(val))==2){
+      stop("Not yet implemented for matrix")
+    }else{
+      qrate <- AA[,2] * val$q[k]/sum(AA[,2])
+    }
+    if(length(timeID) > 1){
+      qrate <- matrix(qrate,nrow=length(qrate),ncol=length(timeID))
+    }
+    wMat <- cbind(AA[,1],rowFromY(gwMod, val$y[k]), 
+                  colFromX(gwMod, val$x[k]), val$id[k],qrate)
+    wellLst[[k]] <- wMat
   }
   wellFrame <- do.call(rbind, wellLst)
   colnames(wellFrame) <- c(c("lay","row","col", "id"),timeID)

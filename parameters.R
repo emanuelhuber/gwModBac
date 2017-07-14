@@ -12,15 +12,15 @@ stp_output <- 10             # which prediction step(s) to write in the
                              # to write all steps, use 
                              # stp_output <- 1:nstp_pred
 timeSel <- seq(139, by=1, length=nstp)
-modGrid <- list(L  = c(min = 0, max = 150),   # 0 m to 200 m along x axis
-                W  = c(min = 0, max = 50),
-                H  = 10,
-                nx = 75,      # number of cells (x axis)
-                ny = 25,       # number of cells (y axis)
+modGrid <- list(x  = c(min = 0, max = 50),   # 0 m to 200 m along x axis
+                y  = c(min = 0, max = 150),
+                z  = 10,
+                nx = 25,      # number of cols (x axis)
+                ny = 75,      # number of rows (y axis)
                 nz = 5)       # number of cells (z axis)
-river <- list(perimeter = cbind(c(modGrid$W["min"], 4,   4,   modGrid$W["min"]),
-                                c(modGrid$L["min"], modGrid$L["min"], 
-                                  modGrid$L["max"], modGrid$L["max"])),
+river <- list(perimeter = cbind(c(modGrid$x["min"], 4,   4,   modGrid$x["min"]),
+                                c(modGrid$y["min"], modGrid$y["min"], 
+                                  modGrid$y["max"], modGrid$y["max"])),
               slope     = 2/100,
               stepL     = 40,
               stepH     = 0.5,
@@ -35,7 +35,7 @@ convMod <- list(mu = 0.05,
                 nf = 20)
 #--- Extraction Well (forecast = bacteria concentration)
 wellExt <- list(  x = c(20.5) + 5,
-                  y = c(25.5) + 25,
+                  y = c(25.5)  + 25,
                ztop = c(16.2),
                zbot = c(14),
                  id = c(1),

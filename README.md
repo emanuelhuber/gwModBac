@@ -10,23 +10,24 @@ Groundwater flow simulation and particle tracking to forecast microbial concentr
 - need to have [https://cran.r-project.org/](R) installed
 
 ### Run
-Several possiblities:
+Two possiblities:
 
 * Open R, copy-paste `run.R` or source `run.R` (but don't forget to adapt line 15 in `run.R` the `DIR` variable to your directory structure
-* Open terminal, enter 
-    `Rscript --vanilla ~/simulations/gwModBac/run.R test.txt 50 15 2 1`
+* Open terminal, change directory to "gwModBac" (`cd path/gwModBac`), enter 
+    `Rscript --vanilla run.R output.txt 15 50 2 1 OK`
     * `~/simulations/gwModBac/run.R` --> filepath of `run.R`
-    * `test.txt` path of the output file (here, `test.txt` will be create in the directory `~/simulations/gwModBac/`
-    * `50` --> nx: number of cells along the x-direction
-    * `15` --> ny: number of cells along the y-direction
-    * `2` --> nz: number of cells along the z-direction
+    * `output.txt` path of the output file (here, `output.txt` will be create in the directory `gwModBac`
+    * `15` --> nx: number of cells along the x-direction = number of columns
+    * `50` --> ny: number of cells along the y-direction = number of rows
+    * `2` --> nz: number of cells along the z-direction = number of layers
     * `1` --> number of runs (but one output file with all the output together)
+    * `OK` [optional] --> can be anything; if the 6th argument is present, an overview plot is created for each single simulation (in the directory `simulations`). If absent, no plot will be created (faster).
     
 ### Notes
-Recommanded minimal grid size:
+Minimal possible grid size:
 
-* nx >= 45
-* ny >= 15
+* nx >= 10
+* ny >= 10
 * nz >= 2
 
 ## What does "run.R" Do?
@@ -57,4 +58,14 @@ Recommanded minimal grid size:
 ### Model overview
 ![Model overview](model_overview.png "Model overview")
 
+### Groundwater flow simulation and particle tracking
+
+* contours and colour bar = hydraulic heads of the first layer
+* blue square = drinking water extraction well
+* coloured lines = paths of the particles entering into the well
+* green dots = start positions of the particles coming from the river
+* red dos = start positions of the particles that do not come from the river
+* light blue multipolygon (corner at (0, 0), (0, 150), (5, 150), (5, 0) = the river
+
+![Groundwater flow simulation and particle tracking](rea_0001.png "Groundwater flow simulation and particle tracking")
 
