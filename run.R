@@ -43,6 +43,8 @@ if(length(args) >= 6){
 }
 if(length(args) >= 7){
   onePlot <- TRUE
+}else{
+  onePlot <- FALSE
 }
 
 
