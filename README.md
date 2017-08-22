@@ -14,14 +14,23 @@ Two possiblities:
 
 * Open R, copy-paste `run.R` or source `run.R` (but don't forget to adapt line 15 in `run.R` the `DIR` variable to your directory structure
 * Open terminal, change directory to "gwModBac" (`cd path/gwModBac`), enter 
-    `Rscript --vanilla run.R output.txt 15 50 2 1 OK`
-    * `~/simulations/gwModBac/run.R` --> filepath of `run.R`
+
+        `Rscript --vanilla run.R output.txt 15 50 2 1 NULL OK`
+
+    * `run.R` --> path of the file `run.R`
     * `output.txt` path of the output file (here, `output.txt` will be create in the directory `gwModBac`
     * `15` --> nx: number of cells along the x-direction = number of columns
     * `50` --> ny: number of cells along the y-direction = number of rows
     * `2` --> nz: number of cells along the z-direction = number of layers
     * `1` --> number of runs (but one output file with all the output together)
-    * `OK` [optional] --> can be anything; if the 6th argument is present, an overview plot is created for each single simulation (in the directory `simulations`): same plot as in section [Groundwater flow simulation and particle tracking](#groundwater-flow-simulation-and-particle-tracking). If absent, no plot will be created (faster).
+    * `NULL` --> no seed are used. To set a seed for the random number simulator, replace `NULL` by any numeric value (e.g., `10`). With a seed, you can reproduce the simulation exactly.
+    * `OK` [optional] --> can be anything; if the 7th argument is present, an overview plot is created for each single simulation (in the directory `simulations`): same plot as in section [Groundwater flow simulation and particle tracking](#groundwater-flow-simulation-and-particle-tracking). If absent, no plot will be created (faster).
+    
+
+Example with fixed seed:
+    
+    Rscript --vanilla run.R output.txt 15 50 2 5 10 OK
+
     
 ### Notes
 Minimal possible grid size:

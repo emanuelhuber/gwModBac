@@ -11,6 +11,7 @@ foutput <- "output.txt"
 # arg4 -> nz (= number of cells in z-direction)
 # arg5 -> number of simulation
 numOfSim <-  1                    # number of simulations
+mySeed <- NULL
 
 DIR <- "/media/data/huber/Documents/WORK/multilevelMCMC"
 
@@ -34,6 +35,13 @@ if(length(args) >= 5){
   numOfSim <- abs(as.integer(args[5]))
 }
 if(length(args) >= 6){
+  if(as.character(args[6]) == "NULL"){
+    mySeed <- NULL
+  }else{
+    mySeed <- as.numeric(args[6])
+  }
+}
+if(length(args) >= 7){
   onePlot <- TRUE
 }
 
@@ -252,6 +260,9 @@ while(it < numOfSim){
   idRea <- paste0("rea_", sprintf("%04d", it))
   dirRun <- file.path(dirProj, idRea)
   suppressWarnings(dir.create(path = dirRun))
+  if(!is.null(mySeed)){
+    set.seed(mySeed)
+  }
   
   ##------------------- HYDRAULIC PROPERTIES SIMULATION -----------------------#
   ##---- hyd. properties
@@ -279,6 +290,9 @@ while(it < numOfSim){
   K_nug  <- runif(1, prior$K_nug$min, prior$K_nug$max)
   ##--- simulation
   #--- hydraulic conductivity
+  if(!is.null(mySeed)){
+    RFoptions(seed = mySeed)
+  }
   gwMod <- suppressMessages(suppressWarnings(gpHKgwMod(gwMod, K_hani, K_hstr, 
                                                        K_vstr, K_nu, K_sd,
                                                        K_l, K_nug, K_mean, 
@@ -380,6 +394,9 @@ while(it < numOfSim){
     cat("MODFLOW failed!!\n")
     it <- it-1
     unlink(dirRun, recursive=TRUE, force=TRUE)
+    if(!is.null(mySeed)){
+      mySeed <- mySeed + 1
+    }
     next
   }
   cat("... OK!\n")
@@ -412,6 +429,9 @@ while(it < numOfSim){
     cat("MODPATH (2) failed!!\n")
     it <- it-1
     unlink(dirRun, recursive=TRUE, force=TRUE)
+    if(!is.null(mySeed)){
+      mySeed <- mySeed + 1
+    }
     next
   }
 #   ext <- extent3D(gwMod)
@@ -427,6 +447,9 @@ while(it < numOfSim){
     cat("MODPATH (2) > particles did not move!!\n")
     it <- it-1
     unlink(dirRun, recursive=TRUE, force=TRUE)
+    if(!is.null(mySeed)){
+      mySeed <- mySeed + 1
+    }
     next
   }
   cat("... OK!\n")
