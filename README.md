@@ -91,7 +91,7 @@ Some simulation results (with seed = 102343643):
 
 ![Target value as a function of nx, ny, nz](all_sim.png "Target value as a function of nx, ny, nz")
 
-* Target value as a function of nx, ny for nz = 10
+* Target value as a function of nx, ny for nz = 10 (z-axis = target value!)
 
 ![Target value as a function of nx, ny for nz = 10](nz_equal_10.png "Target value as a function of nx, ny for nz = 10")
 
