@@ -5,23 +5,31 @@
 args <- commandArgs(trailingOnly <- TRUE)
 
 # arg1 -> outputfile, e.g. "output.txt"
-foutput <- "output.txt"
+foutput <- "rea"
 # arg2 -> nx (= number of cells in x-direction)
 # arg3 -> ny (= number of cells in y-direction)
 # arg4 -> nz (= number of cells in z-direction)
 # arg5 -> number of simulation
+# arg6 -> seed
+# arg7 -> nx ref
+# arg8 -> ny ref
+# arg9 -> nz ref
+# arg10 -> plot
 numOfSim <-  1                    # number of simulations
 mySeed <- NULL
 
-DIR <- "/media/data/huber/Documents/WORK/multilevelMCMC"
+DIR <- file.path("/media/huber/Elements/UNIBAS/RESEARCH/", 
+                 "GW_uncertainty/auswertung/multiLevelMCMC/gwModBac")
+
 
 if(length(args) >= 1){
-  foutput <- as.character(args[1])
+  fout <- as.character(args[1])
   initialOptions <- commandArgs(trailingOnly = FALSE)
   fname <- "--file="
   scriptName <- sub(fname, "", initialOptions[grep(fname, initialOptions)])
   DIR <- dirname(scriptName)
 }
+foutput <- paste0(fout, ".txt")
 if(length(args) >= 2){
   nx <- as.integer(args[2])
 }
@@ -42,6 +50,21 @@ if(length(args) >= 6){
   }
 }
 if(length(args) >= 7){
+  nxref <- as.integer(args[7])
+  if(nxref < 10)  stop("nx ref (arg #7) must be larger than 10!\n")
+  if(nxref < nx) stop("nx must be <=  nx ref\n")
+}
+if(length(args) >= 8){
+  nyref <- as.integer(args[8])
+  if(nyref < 10)  stop("ny ref (arg #8) must be larger than 10!\n")
+  if(nyref < ny) stop("nx must be <=  nx ref\n")
+}
+if(length(args) >= 9){
+  nzref <- as.integer(args[9])
+  if(nzref < 2)  stop("nz ref (arg #9) must be larger than 1!\n")
+  if(nzref < nz) stop("nx must be <=  nx ref\n")
+}
+if(length(args) >= 10){
   onePlot <- TRUE
 }else{
   onePlot <- FALSE
@@ -154,7 +177,8 @@ timeIDPast <- timeID[timePast]
 b <- obs$riv$pos[,"z"] - (-river$slope) * obs$riv$pos[,"y"]
 gwMod <- modGrid3D(modGrid, prec = 2, fun = valleyFloor, a = -river$slope, 
                   b = b)
-gwMod[[1]] <- gwMod[[1]] + 0.4
+pz_layer1 <-  0.4 # elevation layer 1 = gwMod[[1]] + pz_layer1
+gwMod[[1]] <- gwMod[[1]] + pz_layer1
 #plot(gwMod[[3]])
 
 
@@ -259,7 +283,7 @@ while(it < numOfSim){
   cat("***** SIMULATION N0", it, "******\n")
   cat(format(Sys.time(), "   %Y/%m/%d %H:%M:%S \n"))
   
-  idRea <- paste0("rea_", sprintf("%04d", it))
+  idRea <- paste0(fout, "_", sprintf("%04d", it))
   dirRun <- file.path(dirProj, idRea)
   suppressWarnings(dir.create(path = dirRun))
   if(!is.null(mySeed)){
@@ -294,11 +318,25 @@ while(it < numOfSim){
   #--- hydraulic conductivity
   if(!is.null(mySeed)){
     RFoptions(seed = mySeed)
-  }
-  gwMod <- suppressMessages(suppressWarnings(gpHKgwMod(gwMod, K_hani, K_hstr, 
+    modGridRef <- modGrid
+    modGridRef$nx <- nxref
+    modGridRef$ny <- nyref
+    modGridRef$nz <- nzref
+    gwModRef <- modGrid3D(modGridRef, prec = 2, fun = valleyFloor, 
+                          a = -river$slope, b = b)
+    gwModRef[[1]] <- gwModRef[[1]] + pz_layer1
+    gwMod <- suppressMessages(suppressWarnings(
+                  gpHKgwModMultiScale(gwMod, K_hani, K_hstr, 
+                                      K_vstr, K_nu, K_sd,
+                                      K_l, K_nug, K_mean, 
+                                      cst_mps2mpd, gwModRef )))
+  }else{
+    gwMod <- suppressMessages(suppressWarnings(gpHKgwMod(gwMod, K_hani,
+                                                        K_hstr,
                                                        K_vstr, K_nu, K_sd,
                                                        K_l, K_nug, K_mean, 
                                                        cst_mps2mpd )))
+  }
   #--- porosity
   gwMod <- porosity(gwMod, poros)    # porosity
   #--- Zonation for "ss" and "sy"
@@ -494,7 +532,9 @@ while(it < numOfSim){
     dev.off()
   
   }
-  cat("   Concentration = ", format(Cw[it, length(timeForc)], 12, scientific = TRUE) , "\n")
+  cat("   Concentration = ", 
+      format(Cw[it, length(timeForc)], 12, scientific = TRUE), 
+      "\n")
   unlink(dirRun, recursive=TRUE, force=TRUE)
 }
 

@@ -15,21 +15,26 @@ Two possiblities:
 * Open R, copy-paste `run.R` or source `run.R` (but don't forget to adapt line 15 in `run.R` the `DIR` variable to your directory structure
 * Open terminal, change directory to "gwModBac" (`cd path/gwModBac`), enter 
 
-        `Rscript --vanilla run.R output.txt 15 50 2 1 NULL OK`
+        `Rscript --vanilla run.R sim_name 15 50 10 4 NULL 100 200 20 OK`
 
     * `run.R` --> path of the file `run.R`
-    * `output.txt` path of the output file (here, `output.txt` will be create in the directory `gwModBac`
+    * `sim_name` name of the simulation (an output file `sim_name.txt` will be created in the directory `gwModBac`)
     * `15` --> nx: number of cells along the x-direction = number of columns
     * `50` --> ny: number of cells along the y-direction = number of rows
-    * `2` --> nz: number of cells along the z-direction = number of layers
-    * `1` --> number of runs (but one output file with all the output together)
+    * `10` --> nz: number of cells along the z-direction = number of layers
+    * `4` --> number of runs (but one output file with all the output together)
     * `NULL` --> no seed are used. To set a seed for the random number simulator, replace `NULL` by any numeric value (e.g., `10`). With a seed, you can reproduce the simulation exactly.
+    * `100` --> nx_ref: number of columns of the reference simulation (nx_ref >= nx), used to scale down the Gaussian Random Field
+    * `200` --> ny_ref: number of rows of the reference simulation (ny_ref >= ny), used to scale down the Gaussian Random Field
+    * `20` --> nz_ref: number of layers of the reference simulation (nz_ref >= nz), used to scale down the Gaussian Random Field
     * `OK` [optional] --> can be anything; if the 7th argument is present, an overview plot is created for each single simulation (in the directory `simulations`): same plot as in section [Groundwater flow simulation and particle tracking](#groundwater-flow-simulation-and-particle-tracking). If absent, no plot will be created (faster).
     
-
+    
 Example with fixed seed:
     
-    Rscript --vanilla run.R output.txt 15 50 2 5 10 OK
+    ```
+    Rscript --vanilla run.R sim01 10 20 10 1 102343643 100 200 10 OK
+    ```
 
     
 ### Notes

@@ -484,15 +484,94 @@ gpHKgwMod <- function(gwMod, K_hani, K_hstr, K_vstr, K_nu, K_sd,
                                     RandomFields::RMnugget(var = K_nug^2)
     simu <- RandomFields::RFsimulate(model, x = vx, y = vy)
   }else{
+    #zval <- zaxis(gwMod)
+    #zval[1] <- zval[2] - mean(diff(zval[-1]))
+    #vz <- seq(from= zval[1], by = round(mean(diff(zval)),10), 
+    #        length.out = length(zval))
     zval <- zaxis(gwMod)
-    zval[1] <- zval[2] - mean(diff(zval[-1]))
-    vz <- seq(from= zval[1], by = round(mean(diff(zval)),10), 
-            length.out = length(zval))
+    dz <- round(mean(diff(zval)), 10)
+    vz <- seq(from = zval[2] - dz/2, 
+              by = dz, 
+              length.out = nlay(gwMod))
     simu <- RandomFields::RFsimulate(model, x = vx, y = vy, z = vz)
   }
   K0 <- array(as.vector(simu@data)[,1], 
               dim = c(nrow(gwMod), ncol(gwMod), nlay(gwMod)))
   K <-  exp(log(K_mean) + K0)
+
+  for(i in 1:nlay(gwMod)){
+    r <- gwMod[[1]]
+    r[] <- K[,,i]*cst_mps2mpd
+    r[is.na(gwMod[[paste0("lay", i, ".bot")]])] <- NA
+    names(r) <- paste0("lay", i, ".hk")
+    gwMod <- stackRaster(gwMod, r)
+  }
+  rm(r)
+  return(gwMod)
+}
+
+
+gpHKgwModMultiScale <- function(gwMod, K_hani, K_hstr, K_vstr, K_nu, K_sd,
+                      K_l, K_nug, K_mean, cst_mps2mpd, gwModRef ){
+  aniso <- RandomFields::RMangle(angle     = K_hani * pi/180, 
+                                lat.angle = 0, 
+                                diag      = c(1, K_hstr, K_vstr))
+  model <- RandomFields::RMmatern(nu    = K_nu, 
+                                  var   = K_sd^2, 
+                                  scale = K_l/2, 
+                                  Aniso = aniso) +
+                                  RandomFields::RMnugget(var = K_nug^2)
+  #----------------------------------------------
+  ya <- yaxis(gwModRef)
+  vxref <- seq(from= ya[1], by = round(mean(diff(ya)),10), 
+            length.out = length(ya))
+  xa <- xaxis(gwModRef)
+  vyref <- seq(from= xa[1], by = round(mean(diff(xa)),10), 
+            length.out = length(xa))
+  if(nlay(gwModRef) == 1L){
+    aniso <- RandomFields::RMangle(angle     = K_hani * pi/180,
+                                  diag      = c(1, K_hstr))
+    model <- RandomFields::RMmatern(nu    = K_nu, 
+                                    var   = K_sd^2, 
+                                    scale = K_l/2, 
+                                    Aniso = aniso) +
+                                    RandomFields::RMnugget(var = K_nug^2)
+    simuref <- RandomFields::RFsimulate(model, x = vxref, y = vyref)
+  }else{
+    zval <- zaxis(gwModRef)
+    dz <- round(mean(diff(zval)), 10)
+    vzref <- seq(from = zval[2] - dz/2, 
+                 by = dz, 
+                 length.out = nlay(gwModRef))
+    simuref <- RandomFields::RFsimulate(model, x = vxref, y = vyref, z = vzref)
+  }
+   
+  K0ref <- array(as.vector(simuref@data)[,1], 
+              dim = c(nrow(gwModRef), ncol(gwModRef), nlay(gwModRef)))
+  Kref <- exp(log(K_mean) + K0ref)
+ 
+  #----------------------------------------------
+  ya <- yaxis(gwMod)
+  vx <- seq(from= ya[1], by = round(mean(diff(ya)),10), 
+            length.out = length(ya))
+  xa <- xaxis(gwMod)
+  vy <- seq(from= xa[1], by = round(mean(diff(xa)),10), 
+            length.out = length(xa))
+  zval <- zaxis(gwMod)
+  dz <- round(mean(diff(zval)), 10)
+  vz <- seq(from = zval[2] - dz/2, 
+            by = dz, 
+            length.out = nlay(gwMod))
+  
+  vxap <- approx(x = vxref, y = seq_along(vxref), xout = vx, rule = 2)$y
+  vyap <- approx(x = vyref, y = seq_along(vyref), xout = vy, rule = 2)$y
+  vzap <- approx(x = vzref, y = seq_along(vzref), xout = vz, rule = 2)$y
+  
+  K <- Kref[vxap, vyap, vzap]
+ 
+  # par(mfrow = c(1,2))
+  # plot3D::image2D(Kref[,,1], main = "Kref")
+  # plot3D::image2D(K[,,1], main = "K-approximate")
 
   for(i in 1:nlay(gwMod)){
     r <- gwMod[[1]]
