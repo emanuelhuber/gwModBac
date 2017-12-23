@@ -85,7 +85,7 @@ Minimal possible grid size:
 
 ### Convergence grid scaling with fixed seed?
 
-Some simulation results:
+Some simulation results (with seed = 102343643):
 
 ![Target value as a function of nx, ny, nz](all_sim.png "Target value as a function of nx, ny, nz")
 
