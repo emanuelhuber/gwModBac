@@ -83,3 +83,13 @@ Minimal possible grid size:
 
 ![Groundwater flow simulation and particle tracking](rea_0001.png "Groundwater flow simulation and particle tracking")
 
+### Convergence grid scaling with fixed seed?
+
+Some simulation results:
+
+![Target value as a function of nx, ny, nz](all_sim.png "Target value as a function of nx, ny, nz")
+
+![Target value as a function of nx, ny for nz = 10](nz_equal_10.png "Target value as a function of nx, ny for nz = 10")
+
+For these results, I recommand to keep nz = 10 and to only vary nx and ny (more stable, better convergence).
+
