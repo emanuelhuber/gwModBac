@@ -5,9 +5,9 @@ Groundwater flow simulation and particle tracking to forecast microbial concentr
 ## Installation/Run
 
 ### Requirement
-- need to have "gdal_polygonize.py" installed (--> `install python-gdal`)
-- need to have MODFLOW and MODPATH installed (`mfusg` for MODFLOW usgs,  `mp6` for MODPATH). If you need binaries compiled for linux (ubuntu) please contact me
-- need to have [R](https://cran.r-project.org/) installed
+- "gdal_polygonize.py" must be installed (--> `install python-gdal`)
+- MODFLOW and MODPATH must be installed (`mfusg` for MODFLOW usgs,  `mp6` for MODPATH). If you need binaries compiled for linux (ubuntu) please contact me
+- [R](https://cran.r-project.org/) must be installed
 
 ### Run
 Two possiblities:
@@ -80,10 +80,12 @@ Minimal possible grid size:
 ### Groundwater flow simulation and particle tracking
 
 * contours and colour bar = hydraulic heads of the first layer
-* blue square = drinking water extraction well
+<!-- 
+* blue square = drinking water extraction well 
+-->
 * coloured lines = paths of the particles entering into the well
 * green dots = start positions of the particles coming from the river
-* red dos = start positions of the particles that do not come from the river
+* red dots = start positions of the particles that do not come from the river
 * light blue multipolygon (corner at (0, 0), (0, 150), (5, 150), (5, 0) = the river
 
 ![Groundwater flow simulation and particle tracking](rea_0001.png "Groundwater flow simulation and particle tracking")
