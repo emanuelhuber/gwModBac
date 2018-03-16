@@ -10,4 +10,4 @@ test*.txt
 output*.txt
 *simulations
 !.gitignore
-
+*test

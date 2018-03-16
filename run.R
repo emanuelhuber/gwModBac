@@ -4,7 +4,7 @@
 ##--- ARGUMENTS
 args <- commandArgs(trailingOnly <- TRUE)
 
-args <- c("sim_name", 20, 50, 10, 4, "NULL", 100, 200, 20, "OK")
+#args <- c("sim_name", 20, 50, 10, 4, "NULL", 100, 200, 20, "OK")
 
 
 
