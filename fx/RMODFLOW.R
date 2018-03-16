@@ -1252,28 +1252,29 @@ WriteModflowInputFiles <- function(rs.model, rech = NULL, well = NULL,
   #==================
   # River file (RIV)
   if(!is.null(river)){
-  message("Writting river file...")
-  f <- file.path(dir.run, paste0(id, ".riv"))
-  nunit <- nunit + 1L
-  nam <- rbind(nam, data.frame(ftype="RIV", nunit=nunit, fname=basename(f)))
-
-  ds.0 <- c(header, "# MODFLOW River Package")
-  cat(ds.0, file=f, sep="\n", append=FALSE)
-
-  n <- nrow(river)
-  ds.2 <- paste(n, nunit.bud, "AUXILIARY id")
-  if (!verbose)
-    ds.2 <- paste(ds.2, "NOPRINT")
-  ds.2 <- paste(ds.2, " # MXACTR,IRIVCB,[Option]")
-  cat(ds.2, file=f, sep="\n", append=TRUE)
-
-  for (i in seq_along(timeID)) {
-    ds.5 <- paste(n, 0L, " # ITMP,NP    STRESS PERIOD", timeID[i])
-    cat(ds.5, file=f, sep="\n", append=TRUE)
-    d <- river[, c("lay", "row", "col", timeID[i], "cond", "bottom", "id")]
-    write.table(d, file=f, append=TRUE, quote=FALSE, row.names=FALSE,
-          col.names=FALSE)
-  }
+    message("Writting river file...")
+    f <- file.path(dir.run, paste0(id, ".riv"))
+    nunit <- nunit + 1L
+    nam <- rbind(nam, data.frame(ftype = "RIV", nunit = nunit, 
+                                 fname = basename(f)))
+  
+    ds.0 <- c(header, "# MODFLOW River Package")
+    cat(ds.0, file=f, sep="\n", append=FALSE)
+  
+    n <- nrow(river)
+    ds.2 <- paste(n, nunit.bud, "AUXILIARY id")
+    if (!verbose)
+      ds.2 <- paste(ds.2, "NOPRINT")
+    ds.2 <- paste(ds.2, " # MXACTR,IRIVCB,[Option]")
+    cat(ds.2, file=f, sep="\n", append=TRUE)
+  
+    for (i in seq_along(timeID)) {
+      ds.5 <- paste(n, 0L, " # ITMP,NP    STRESS PERIOD", timeID[i])
+      cat(ds.5, file=f, sep="\n", append=TRUE)
+      d <- river[, c("lay", "row", "col", timeID[i], "cond", "bottom", "id")]
+      write.table(d, file = f, append = TRUE, quote = FALSE, row.names = FALSE,
+                  col.names = FALSE)
+    }
   }
   #==========================================
   # Time-variant specified-head package (CHD)

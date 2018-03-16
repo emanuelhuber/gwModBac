@@ -4,6 +4,10 @@
 ##--- ARGUMENTS
 args <- commandArgs(trailingOnly <- TRUE)
 
+args <- c("sim_name", 20, 50, 10, 4, "NULL", 100, 200, 20, "OK")
+
+
+
 # arg1 -> outputfile, e.g. "output.txt"
 foutput <- "rea"
 # arg2 -> nx (= number of cells in x-direction)
@@ -18,8 +22,8 @@ foutput <- "rea"
 numOfSim <-  1                    # number of simulations
 mySeed <- NULL
 
-DIR <- file.path("/media/huber/Elements/UNIBAS/RESEARCH/", 
-                 "GW_uncertainty/auswertung/multiLevelMCMC/gwModBac")
+DIR <- file.path("/media/huber/Elements/UNIBAS/software/", 
+                 "codeR/multilevelMCMC/gwModBac")
 
 
 if(length(args) >= 1){
@@ -57,7 +61,7 @@ if(length(args) >= 7){
 if(length(args) >= 8){
   nyref <- as.integer(args[8])
   if(nyref < 10)  stop("ny ref (arg #8) must be larger than 10!\n")
-  if(nyref < ny) stop("nx must be <=  nx ref\n")
+  if(nyref < ny) stop("ny must be <=  ny ref\n")
 }
 if(length(args) >= 9){
   nzref <- as.integer(args[9])
@@ -186,10 +190,15 @@ gwMod[[1]] <- gwMod[[1]] + pz_layer1
 ##--- river raster
 rivPoly <- SpatialPolygons(list(Polygons(list(Polygon(river$perimeter)), 
                            "p1")), 1L)
-rRiv <- rasterize(rivPoly, gwMod[[1]])
+# rRiv <- rasterize(rivPoly, gwMod[[1]])
+rRiv <- rasterizePolygon(rivPoly, gwMod[[1]])
 names(rRiv) <- "river"
 gwMod <- stackRaster(gwMod, rRiv)
+#plot(rRiv)
 rm(rRiv)
+
+
+
 
 ##--- CHD raster
 rCHD <- gwMod[[1]]
@@ -223,7 +232,7 @@ rivBedz <- rivBedz0 - river$depth
 #--- riverbed conductance
 Cr0 <- (10^runif(length(cellsRiv),-3,-1) )
 Cr <- Cr0 * res(gwMod)[1]*res(gwMod)[2]/river$bedT
-gwMod[["river"]][cellsRiv] <- rivBedz
+#gwMod[["river"]][cellsRiv] <- rivBedz
 riverFrame <- rivGwMod(gwMod, hrel = obs$riv$h, 
                        rivH0z = rivBedz + river$minStage, 
                        rivBedz = rivBedz, 

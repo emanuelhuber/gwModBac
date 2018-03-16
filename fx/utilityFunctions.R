@@ -600,6 +600,25 @@ zonation <- function(gwMod, att.table){
   return(gwMod)
 }
 
+# if coverage is true, return a raster where the cell values
+# correspond to the polygon coverage (1 = completely covered, 
+# 0 = not covered at all)
+rasterizePolygon <- function(p, r, coverage = TRUE){
+  if(coverage == FALSE){
+    return (rasterize(p, r))
+  }else{}
+  # https://stackoverflow.com/questions/40658173/portion-of-a-raster-cell-
+  # covered-by-one-or-more-polygons-is-there-a-faster-way
+  rp <- rasterToPolygons(r)
+  gi <- gIntersection(rp, p, byid = TRUE)
+  # getting intersected rr's id
+  ind <- as.numeric(do.call(rbind, strsplit(names(gi), " "))[,1])   
+  r[] <- NA
+  # a bit faster than gArea(gi, byid = T)
+  r[ind] <- sapply(gi@polygons, function(x) slot(x, 'area')) / prod(res(r))
+  return(r)
+}
+
 # hrel = relative river stage (between 0 and + something)
 # rivH0z = reference elevation of riverstage when hrel = 0
 # rivBedz = elevation river bed
@@ -609,6 +628,7 @@ rivGwMod <- function(gwMod, hrel, rivH0z, rivBedz, Cr, timeID){
   rivStage <- matrix(hrel, nrow=length(cellsRiv), 
                         ncol=length(timeID), byrow=TRUE)  + rivH0z
   rowColRiv <- rowColFromCell(gwMod[["river"]], cellsRiv)
+  Cr <- as.vector(Cr) * trim(gwMod[["river"]])
   riverFrame <- data.frame(lay = 1L,
                           row = rowColRiv[,"row"],
                           col =rowColRiv[,"col"],
