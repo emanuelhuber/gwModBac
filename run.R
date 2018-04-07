@@ -549,7 +549,7 @@ while(it < numOfSim){
 
 
 
-write.table(format(Cw[, length(timeForc)], 12, scientific = TRUE), 
+write.table(format(Cw[, timeForc], 12, scientific = TRUE), 
             file = foutput, append = FALSE, quote = FALSE, sep = "\t", 
             col.names = FALSE, row.names = FALSE)
 

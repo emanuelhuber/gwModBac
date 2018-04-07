@@ -7,10 +7,7 @@ cst_mps2mpd <- 3600*24
 timeFormat <- "%Y%m%d"
 nstp_pred <- 10              # day-ahead prediction
 nstp <- 21 + nstp_pred       # number of time steps
-stp_output <- 10             # which prediction step(s) to write in the
-                             # output file
-                             # to write all steps, use 
-                             # stp_output <- 1:nstp_pred
+
 timeSel <- seq(139, by=1, length=nstp)
 modGrid <- list(x  = c(min = 0, max = 50),   # 0 m to 200 m along x axis
                 y  = c(min = 0, max = 150),
