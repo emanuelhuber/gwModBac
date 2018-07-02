@@ -35,16 +35,16 @@ sy:         0.2252799
 poros:      0.3134416
 
 
-##--- Gaussian process hydraulic conductivity
+##--- random Gaussian field - hydraulic conductivity
 GPHK:
   # TRUE/FALSE. If TRUE, don't read the file but simulate
   # the Gaussian Process from the parameters
   para: FALSE
 
   # path of hydraulic conductivity file
-  # one big vector column of length (nx x ny nz),
-  # simulate the covariance model on a array of dimension ny x nx x nz
-  #                                    -> nrow x ncol x nlayers
+  # one big vector column of length (nx x ny x nz),
+  # corresponding to the random Gaussian field
+  # on a array of dimension ny x nx x nz    -> nrow x ncol x nlayers
   file:    'HK.txt'
   
   # type = "norm", mean = -3, sd = 0.1       # m/s

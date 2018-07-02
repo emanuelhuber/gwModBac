@@ -9,13 +9,15 @@ Groundwater flow simulation and particle tracking to forecast microbial concentr
 - MODFLOW and MODPATH must be installed (`mfusg` for MODFLOW usgs,  `mp6` for MODPATH). If you need binaries compiled for linux (ubuntu) please contact me
 - [R](https://cran.r-project.org/) must be installed
 
-### Run
+### Run (file `run.R`)
 Two possiblities:
 
 * Open R, copy-paste `run.R` or source `run.R` (but don't forget to adapt line 15 in `run.R` the `DIR` variable to your directory structure
 * Open terminal, change directory to "gwModBac" (`cd path/gwModBac`), enter 
 
-        `Rscript --vanilla run.R sim_name 15 50 10 4 NULL 100 200 20 OK`
+    ```
+    Rscript --vanilla run.R sim_name 15 50 10 4 NULL 100 200 20 OK
+    ```
 
     * `run.R` --> path of the file `run.R`
     * `sim_name` name of the simulation (an output file `sim_name.txt` will be created in the directory `gwModBac`)
@@ -41,7 +43,28 @@ Example without fixed seed and without plot:
     ```
     Rscript --vanilla run.R sim01 10 20 10 1 NULL 100 200 10
     ```
-    
+
+### Run with config file and pre-defined "random variables"  (file `run_para.R`)
+
+Only one argument: the config file `*.yaml`. All the parameters as well as their prior distributions are explained in the test file `sim_parameters.yaml`.
+To simulate the 3D hydraulic conductivity field (random Gaussian field), you have two options:
+
+- either assign the values the 3D random Gaussian field parameter (`para: TRUE`)
+- or give directly the values of the 3D random Gaussian field parameter (`para: FALSE` and the code read the file given by `file:    'HK.txt'`): one big vector column of length (nx x ny x nz),
+   corresponding to an array of dimension **ny** x nx x nz ( = nrow x ncol x nlayers, notice that here **nrow = ny**). I haven't tested what is the order of this big vector.
+
+
+
+    ```
+    Rscript --vanilla run_para.R sim_parameters.yaml
+    ```
+
+Output: 
+
+- a text file with name  `projectName/simName.txt` (see `sim_parameters.yaml`) with a vector column corresponding to the 10-days ahead forecast
+- if `plot: TRUE` a plot `projectName/simName.png`
+
+
 ### Notes
 Minimal possible grid size:
 
