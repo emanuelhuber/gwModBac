@@ -603,21 +603,38 @@ zonation <- function(gwMod, att.table){
 # if coverage is true, return a raster where the cell values
 # correspond to the polygon coverage (1 = completely covered, 
 # 0 = not covered at all)
+# NEW function. Previous one, no more working (update rgeos package)
 rasterizePolygon <- function(p, r, coverage = TRUE){
   if(coverage == FALSE){
     return (rasterize(p, r))
-  }else{}
-  # https://stackoverflow.com/questions/40658173/portion-of-a-raster-cell-
-  # covered-by-one-or-more-polygons-is-there-a-faster-way
-  rp <- rasterToPolygons(r)
-  gi <- gIntersection(rp, p, byid = TRUE)
-  # getting intersected rr's id
-  ind <- as.numeric(do.call(rbind, strsplit(names(gi), " "))[,1])   
-  r[] <- NA
-  # a bit faster than gArea(gi, byid = T)
-  r[ind] <- sapply(gi@polygons, function(x) slot(x, 'area')) / prod(res(r))
-  return(r)
+  }else{
+    # https://stackoverflow.com/questions/40658173/portion-of-a-raster-cell-
+    # covered-by-one-or-more-polygons-is-there-a-faster-way
+    rp <- raster::rasterToPolygons(r)
+    gi <- rgeos::gIntersection(rp, p, byid = TRUE, drop_lower_td= TRUE)
+    # getting intersected rr's id
+    ind <- as.numeric(do.call(rbind, strsplit(names(gi), " "))[,1])   
+    r[] <- NA
+    # a bit faster than gArea(gi, byid = T)
+    r[ind] <- rgeos::gArea(gi, byid = TRUE)/ prod(res(r))
+    return(r)
+  }
 }
+# rasterizePolygon <- function(p, r, coverage = TRUE){
+#   if(coverage == FALSE){
+#     return (rasterize(p, r))
+#   }else{}
+#   # https://stackoverflow.com/questions/40658173/portion-of-a-raster-cell-
+#   # covered-by-one-or-more-polygons-is-there-a-faster-way
+#   rp <- rasterToPolygons(r)
+#   gi <- gIntersection(rp, p, byid = TRUE)
+#   # getting intersected rr's id
+#   ind <- as.numeric(do.call(rbind, strsplit(names(gi), " "))[,1])   
+#   r[] <- NA
+#   # a bit faster than gArea(gi, byid = T)
+#   r[ind] <- sapply(gi@polygons, function(x) slot(x, 'area')) / prod(res(r))
+#   return(r)
+# }
 
 # hrel = relative river stage (between 0 and + something)
 # rivH0z = reference elevation of riverstage when hrel = 0

@@ -9,12 +9,17 @@ nstp_pred <- 10              # day-ahead prediction
 nstp <- 21 + nstp_pred       # number of time steps
 
 timeSel <- seq(139, by=1, length=nstp)
+
+
+# model size + default resolution
 modGrid <- list(x  = c(min = 0, max = 50),   # 0 m to 200 m along x axis
                 y  = c(min = 0, max = 150),
                 z  = 10,
                 nx = 25,      # number of cols (x axis)
                 ny = 75,      # number of rows (y axis)
                 nz = 5)       # number of cells (z axis)
+
+# river
 river <- list(perimeter = cbind(c(modGrid$x["min"], 4,   4,   modGrid$x["min"]),
                                 c(modGrid$y["min"], modGrid$y["min"], 
                                   modGrid$y["max"], modGrid$y["max"])),
@@ -26,10 +31,10 @@ river <- list(perimeter = cbind(c(modGrid$x["min"], 4,   4,   modGrid$x["min"]),
               bedT      = 0.25)  # river bed thickness
 river$stepS <- (river$stepH - river$slope*river$stepL)/river$stepL
 nrivObs <- 10
+# number of constraint for derivative of GP
 nbc <- 10
-#--- convolution parameters (unit hydrograph)
-convMod <- list(mu = 0.05,
-                nf = 20)
+
+
 #--- Extraction Well (forecast = bacteria concentration)
 wellExt <- list(  x = c(20.5) + 5,
                   y = c(25.5)  + 25,
@@ -48,6 +53,10 @@ bactConcPara <- list(lambda = 0.1,
                      b      = 0.06,
                      Cpmin  = 0)
 
+#--- convolution parameters (unit hydrograph)
+convMod <- list(mu = 0.05,
+                nf = 20)
+
 #---- PRIOR > parameters for the probability density functions
 prior <- list(h_sig   = list(type = "unif", min = 0.05, max = 0.1),
               h_lx    = list(type = "unif", min = 20, max = 60),
@@ -55,7 +64,7 @@ prior <- list(h_sig   = list(type = "unif", min = 0.05, max = 0.1),
               h_hx    = list(type = "unif", min = 0.05, max = 1),
               h_lt    = list(type = "unif", min = 0.25, max = 1.5),
               h_ht    = list(type = "unif",  min = 0.01, max = 0.2),
-              h_scale = list(type = "unif", min = 2, max = 10),
+              #h_scale = list(type = "unif", min = 2, max = 10),
               Cr      = list(type = "norm", mean = -2, sd = 0.75),
               ss      = list(type = "unif", min = 1*10^-6, max = 10*10^-5),
               sy      = list(type = "unif", min = 0.2, max = 0.35),
@@ -65,8 +74,9 @@ prior <- list(h_sig   = list(type = "unif", min = 0.05, max = 0.1),
               K_l     = list(type = "unif", min = 5, max = 15),
               K_nu    = list(type = "unif", min = 1.5, max = 3),
               K_hani  = list(type = "unif", min = 100, max = 150),
+              #K_vani  = list(type = "unif", min = 3, max = 7)
               K_hstr  = list(type = "unif", min = 1/20, max = 1/2),
               K_vstr  = list(type = "unif", min = 15, max = 30),
-              K_nug   = list(type = "unif", min = 0.05, max = 0.2),
-              K_vani  = list(type = "unif", min = 3, max = 7))
+              K_nug   = list(type = "unif", min = 0.05, max = 0.2)
+             )
 

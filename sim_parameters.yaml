@@ -1,0 +1,102 @@
+
+projectName:  'simulations'
+
+simName:      'run_001'
+
+# if true, a plot will be saved
+plot:         TRUE
+
+# model grid size
+modGrid:
+  nx: 25   # number of columns
+  ny: 75   # number of rows
+  nz: 10   # number of layers
+  
+# grid size of the reference model (high resolution)
+modGridRef:
+  nx: 100   # number of columns
+  ny: 200   # number of rows
+  nz:  20   # number of layers
+
+# Riverbed conductance
+# type = "norm", mean = -2, sd = 0.75
+Cr0:        1.97081
+
+# specific storage
+# type = "unif", min = 1*10^-6, max = 10*10^-5
+ss:         5.516989e-05 
+
+# specific yield
+# type = "unif", min = 0.2, max = 0.35      
+sy:         0.2252799
+
+# porosity
+# type = "unif", min = 0.25, max = 0.35       
+poros:      0.3134416
+
+
+##--- Gaussian process hydraulic conductivity
+GPHK:
+  # TRUE/FALSE. If TRUE, don't read the file but simulate
+  # the Gaussian Process from the parameters
+  para: FALSE
+
+  # path of hydraulic conductivity file
+  # one big vector column of length (nx x ny nz),
+  # simulate the covariance model on a array of dimension ny x nx x nz
+  #                                    -> nrow x ncol x nlayers
+  file:    'HK.txt'
+  
+  # type = "norm", mean = -3, sd = 0.1       # m/s
+  K_mean:     -3.244064
+
+  # type = "unif", min = 0.1, max = 0.75     # m/s
+  K_sd:       0.465561
+
+  # horizontal anisotropy angle
+  # type = "unif", min = 100, max = 150
+  K_hani:     100.077
+  
+  # streching ratio horizontal
+  # type = "unif", min = 1/20, max = 1/2 
+  K_hstr:     0.2837281
+
+  # streching ratio vertical
+  # type = "unif", min = 15, max = 30   
+  K_vstr:     20.68463
+
+  # smoothness parameter Matern cov
+  # type = "unif", min = 1.5, max = 3
+  K_nu:       1.585283
+
+  # correlation length
+  # type = "unif", min = 5, max = 15
+  K_l:        5.475916
+
+  # nugget sd
+  # type = "unif", min = 0.05, max = 0.2
+  K_nug:      0.1521841
+
+
+##--- Gaussian process boundary conditions
+GPBC:
+  # noise
+  # type = "unif", min = 0.05, max = 0.1
+  h_sig:    0.08
+  
+  # spatial covariance
+  # type = "unif", min = 20, max = 60
+  h_lx:     30
+  
+  #type = "unif", min = 1, max = 3
+  h_vx:     2
+  
+  # type = "unif", min = 0.05, max = 1
+  h_hx:     0.2
+  
+  # temporal covariance
+  # type = "unif", min = 0.25, max = 1.5
+  h_lt:     1
+  # type = "unif",  min = 0.01, max = 0.2
+  h_ht:     0.1
+  
